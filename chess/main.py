@@ -29,6 +29,40 @@ class Piece:
         self.piece_type = piece 
         self.color = color
         self.popsition = [x,y]
+    def piece_out(self):
+        output = ""
+        if color == "black":
+            match self.piece_type.value:
+                case 1:
+                    output = "♟"
+                case 2:
+                    output = "♞"
+                case 3:
+                    output = "♝"
+                case 4:
+                    output = "♜"
+                case 5:
+                    output = "♛"
+                case 6:
+                    output = "♚"
+
+        elif color == "white":
+            match self.piece_type.value:
+                case 1:
+                    output="♙"
+                case 2:
+                    output = "♘"
+                case 3:
+                    output = "♗"
+                case 4:
+                    output = "♖"
+                case 5:
+                    output = "♕"
+                case 6:
+                    output = "♔"
+        return output
+                
+
 
     
 
