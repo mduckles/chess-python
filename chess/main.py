@@ -26,7 +26,7 @@ class Game:
 
 class Piece:
     def __init__(self,piece,color,x,y):
-        self.piece_type = piece
+        self.piece_type = piece 
         self.color = color
         self.popsition = [x,y]
 
@@ -36,7 +36,13 @@ class Player:
     def __init__(self):
         self.gamestate = Gamestate.InProgress
 
-
+class PieceType(Enum):
+    Pawn=1 
+    Knight=2 
+    Bishop=3 
+    Rook=4
+    Queen=5
+    King=6
     
 class Gamestate(Enum):
     Win =1
