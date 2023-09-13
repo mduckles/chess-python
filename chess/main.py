@@ -3,7 +3,7 @@ from enum import Enum
 
 class Game:
     def __init__(self):
-        self.board = [[" t "for i in range(8)] for i in range(8)] 
+        self.board = [["  "for i in range(8)] for i in range(8)] 
         self.gameover = False
 
     def gameloop(self):
@@ -11,10 +11,15 @@ class Game:
             pass
 
     def board_out(self):
-        for row in self.board:
-            for square in row:
-                print(square,end='')
-            print("\n")
+        print("\033[J")
+        print("\033[38;5;9")
+        for (i,row) in enumerate(self.board):
+            for (j,square) in enumerate(row):
+                if (j+i)%2 !=0:
+                    print(f"\033[48;5;232m {square}",end='\033[0m')
+                if (j+i)%2 ==0:
+                    print(f"\033[48;5;130m {square}",end='\033[0m')
+            print("")
 
         
     
