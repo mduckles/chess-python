@@ -1,68 +1,55 @@
 from enum import Enum
+import curses
 
 
 class Game:
-    def __init__(self):
-        self.board = [["  "for i in range(8)] for i in range(8)] 
+    def __init__(self,player1,player2):
+        self.board = [[["  ","black"]for i in range(8)] for i in range(8)] 
         self.gameover = False
+        self.player1 = player1
+        self.player2 = player2
+        self.window = curses.initscr()
+        self.width = curses.COLS
+        self.height = curses.LINES
+        curses.start_color()
+        curses.init_color(1,770,450,90)
+        curses.init_color(2,530,230,30)
+        curses.init_color(3,1,1,1)
+        curses.init_pair(1,1,2)
+        curses.init_pair(2,2,1)
+        curses.init_pair(3,3,3)
+        self.window.attrset(curses.color_pair(3))
 
     def gameloop(self):
+        self.board_out()
         while not self.gameover:
             pass
 
     def board_out(self):
-        print("\033[J")
-        print("\033[38;5;9")
         for (i,row) in enumerate(self.board):
             for (j,square) in enumerate(row):
-                if (j+i)%2 !=0:
-                    print(f"\033[48;5;232m {square}",end='\033[0m')
-                if (j+i)%2 ==0:
-                    print(f"\033[48;5;130m {square}",end='\033[0m')
-            print("")
+                if (j+i)%2!=0:
+                    self.window.attron(curses.color_pair(1))
+                    self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+                    self.window.attroff(curses.color_pair(1))
+                elif (j+i)%2==0:
+                    self.window.attron(curses.color_pair(2))
+                    self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+                    self.window.attroff(curses.color_pair(2))
+                self.window.refresh()
+
+
+
+
 
         
     
 
 class Piece:
-    def __init__(self,piece:PieceType,color:str,x:int,y:int):
+    def __init__(self,piece,color:str,x:int,y:int):
         self.piece_type = piece 
         self.color = color
         self.popsition = [x,y]
-    def piece_out(self):
-        black = "\033[38;5;237m]"
-        white = "\033[38;5;15m]"
-        output = ""
-        if color == "black":
-            match self.piece_type.value:
-                case 1:
-                    output = black + "♟"
-                case 2:
-                    output = black + "♞"
-                case 3:
-                    output = black + "♝"
-                case 4:
-                    output = black + "♜"
-                case 5:
-                    output = black + "♛"
-                case 6:
-                    output = black + "♚"
-
-        elif color == "white":
-            match self.piece_type.value:
-                case 1:
-                    output= white + "♙"
-                case 2:
-                    output = white + "♘"
-                case 3:
-                    output = white + "♗"
-                case 4:
-                    output = white + "♖"
-                case 5:
-                    output = white + "♕"
-                case 6:
-                    output = white + "♔"
-        return output
                 
 
 
@@ -90,7 +77,7 @@ class Gamestate(Enum):
 
 def main():
     game = Game()
-    game.board_out()
+    game.gameloop()
     
 
 if __name__ == "__main__":
