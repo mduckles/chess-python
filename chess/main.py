@@ -30,36 +30,38 @@ class Piece:
         self.color = color
         self.popsition = [x,y]
     def piece_out(self):
+        black = "\033[38;5;237m]"
+        white = "\033[38;5;15m]"
         output = ""
         if color == "black":
             match self.piece_type.value:
                 case 1:
-                    output = "♟"
+                    output = black + "♟"
                 case 2:
-                    output = "♞"
+                    output = black + "♞"
                 case 3:
-                    output = "♝"
+                    output = black + "♝"
                 case 4:
-                    output = "♜"
+                    output = black + "♜"
                 case 5:
-                    output = "♛"
+                    output = black + "♛"
                 case 6:
-                    output = "♚"
+                    output = black + "♚"
 
         elif color == "white":
             match self.piece_type.value:
                 case 1:
-                    output="♙"
+                    output= white + "♙"
                 case 2:
-                    output = "♘"
+                    output = white + "♘"
                 case 3:
-                    output = "♗"
+                    output = white + "♗"
                 case 4:
-                    output = "♖"
+                    output = white + "♖"
                 case 5:
-                    output = "♕"
+                    output = white + "♕"
                 case 6:
-                    output = "♔"
+                    output = white + "♔"
         return output
                 
 
