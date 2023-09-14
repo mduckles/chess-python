@@ -5,10 +5,13 @@ import curses
 class Game:
     def __init__(self,player1,player2):
         self.board = [[["  ","black"]for i in range(8)] for i in range(8)] 
-        self.gameover = False
         self.player1 = player1
         self.player2 = player2
+        self.gameover = False
         self.window = curses.initscr()
+        self.window.keypad(1)
+        curses.curs_set(0)
+        curses.mousemask(1)
         self.width = curses.COLS
         self.height = curses.LINES
         curses.start_color()
@@ -23,7 +26,20 @@ class Game:
     def gameloop(self):
         self.board_out()
         while not self.gameover:
-            pass
+            event = self.window.getch()
+            self.inputs(event)
+        curses.endwin()
+
+    def inputs(self,event):
+        if event == ord("q"):
+            self.gameover = True
+        if event == curses.KEY_MOUSE:
+            mouse = curses.getmouse()
+            if (mouse[2] >=round(self.height/2)-4 and mouse[2] <=round(self.height/2)+4) and (mouse[1]>=round(self.width/2)-8 and mouse[1] <=round(self.width/2)+8):
+                self.gameover = True
+                
+
+
 
     def board_out(self):
         for (i,row) in enumerate(self.board):
@@ -38,22 +54,12 @@ class Game:
                     self.window.attroff(curses.color_pair(2))
                 self.window.refresh()
 
-
-
-
-
-        
-    
-
 class Piece:
     def __init__(self,piece,color:str,x:int,y:int):
         self.piece_type = piece 
         self.color = color
         self.popsition = [x,y]
                 
-
-
-    
 
 class Player:
     def __init__(self,turn:bool):
@@ -76,7 +82,9 @@ class Gamestate(Enum):
 
 
 def main():
-    game = Game()
+    player1 = Player(True)
+    player2 = Player(False)
+    game = Game(player1,player2)
     game.gameloop()
     
 
