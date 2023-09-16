@@ -8,21 +8,41 @@ class Game:
         self.player1 = player1
         self.player2 = player2
         self.gameover = False
+        #initialise window
         self.window = curses.initscr()
+        #set up keystrokes and mouse inputes
         self.window.keypad(1)
+        curses.noecho()
         curses.curs_set(0)
         curses.mousemask(1)
+        #dimensions of window
         self.width = curses.COLS
         self.height = curses.LINES
+        #starts colors 
         curses.start_color()
+        # dark brown 
         curses.init_color(1,770,450,90)
+        # light brown
         curses.init_color(2,530,230,30)
+        #black
         curses.init_color(3,0,0,0)
+        #white
         curses.init_color(4,1000,1000,1000)
+        #black
         curses.init_color(3,1,1,1)
+        
         curses.init_pair(1,1,2)
         curses.init_pair(2,2,1)
         curses.init_pair(3,3,3)
+
+        #white dark brown
+        curses.init_pair(4,4,1)
+        #white light brown
+        curses.init_pair(5,4,2)
+        #black dark brown
+        curses.init_pair(6,3,1)
+        #black light brown
+        curses.init_pair(7,3,2)
         self.window.attrset(curses.color_pair(3))
 
     def gameloop(self):
@@ -30,15 +50,16 @@ class Game:
         self.board_out()
         while not self.gameover:
             event = self.window.getch()
-            self.inputs(event)
+            (bx,by) = self.inputs(event)
+            for piece in self.player1.pieces + self.player2.pieces:
+                if (bx,by) == (piece.popsition[0],piece.popsition[0]):
+                    self.gameover = True
+                    
         curses.endwin()
 
     def pieces_to_board(self):
         for piece in self.player1.pieces+self.player2.pieces:
             self.board[piece.popsition[0]][piece.popsition[1]] = piece.piece_output
-        
-            
-            
 
     def inputs(self,event):
         if event == ord("q"):
@@ -46,22 +67,31 @@ class Game:
         if event == curses.KEY_MOUSE:
             mouse = curses.getmouse()
             if (mouse[2] >=round(self.height/2)-4 and mouse[2] <=round(self.height/2)+4) and (mouse[1]>=round(self.width/2)-8 and mouse[1] <=round(self.width/2)+8):
-                self.gameover = True
-                
-
-
+                #returns chess cords 
+                return (round((mouse[1]-round(self.width/2)+8)/2),mouse[2]-round(self.height/2)+4)
+        return(-1,-1)
 
     def board_out(self):
         for (i,row) in enumerate(self.board):
             for (j,square) in enumerate(row):
                 if (j+i)%2!=0:
-                    self.window.attron(curses.color_pair(1))
-                    self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
-                    self.window.attroff(curses.color_pair(1))
+                    if square[1]== "white":
+                        self.window.attron(curses.color_pair(4))
+                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+                        self.window.attroff(curses.color_pair(4))
+                    elif square[1] == "black":
+                        self.window.attron(curses.color_pair(6))
+                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+                        self.window.attroff(curses.color_pair(6))
                 elif (j+i)%2==0:
-                    self.window.attron(curses.color_pair(2))
-                    self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
-                    self.window.attroff(curses.color_pair(2))
+                    if square[1] == "white":
+                        self.window.attron(curses.color_pair(5))
+                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+                        self.window.attroff(curses.color_pair(5))
+                    elif square[1] == "black":
+                        self.window.attron(curses.color_pair(7))
+                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+                        self.window.attroff(curses.color_pair(7))
                 self.window.refresh()
 
 class Piece:
@@ -69,17 +99,17 @@ class Piece:
         self.piece_type = piece 
         self.piece_output = ["  ",color]   
         if  self.piece_type.value==1: 
-            self.piece_output = ["♟♟",color]
+            self.piece_output = ["♟ ",color]
         if self.piece_type.value ==2: 
-            self.piece_output = ["♞♞",color]
+            self.piece_output = ["♞ ",color]
         if self.piece_type.value==3:
-            self.piece_output = ["♝♝",color]
+            self.piece_output = ["♝ ",color]
         if self.piece_type.value==4:
-            self.piece_output = ["♜♜",color]
+            self.piece_output = ["♜ ",color]
         if self.piece_type.value==5:
-            self.piece_output = ["♛♛",color]
+            self.piece_output = ["♛ ",color]
         if self.piece_type.value==6:
-            self.piece_output = ["♔♔",color]
+            self.piece_output = ["♚ ",color]
         self.color = color
         self.popsition = [x,y]
                 
