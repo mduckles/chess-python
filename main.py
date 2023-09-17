@@ -52,14 +52,17 @@ class Game:
             event = self.window.getch()
             (bx,by) = self.inputs(event)
             for piece in self.player1.pieces + self.player2.pieces:
-                if (bx,by) == (piece.popsition[0],piece.popsition[0]):
+                with open ("output.txt","a") as f:
+                    f.write(f"({bx},{by})({piece.position[0]},{piece.position[1]})")
+                f.close
+                if (bx,by) == (piece.position[0],piece.position[1]):
                     self.gameover = True
                     
         curses.endwin()
 
     def pieces_to_board(self):
         for piece in self.player1.pieces+self.player2.pieces:
-            self.board[piece.popsition[0]][piece.popsition[1]] = piece.piece_output
+            self.board[piece.position[0]][piece.position[1]] = piece.piece_output
 
     def inputs(self,event):
         if event == ord("q"):
@@ -111,7 +114,7 @@ class Piece:
         if self.piece_type.value==6:
             self.piece_output = ["♚ ",color]
         self.color = color
-        self.popsition = [x,y]
+        self.position = [x,y]
                 
 
 class Player:
