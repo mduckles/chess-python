@@ -28,12 +28,12 @@ class Game:
         curses.init_color(3,0,0,0)
         #white
         curses.init_color(4,1000,1000,1000)
-        #black
-        curses.init_color(3,1,1,1)
+        #highlight
+        curses.init_color(5,921,921,360)
         
-        curses.init_pair(1,1,2)
-        curses.init_pair(2,2,1)
         curses.init_pair(3,3,3)
+        curses.init_pair(1,3,5)
+        curses.init_pair(2,4,5)
 
         #white dark brown
         curses.init_pair(4,4,1)
@@ -47,7 +47,7 @@ class Game:
 
     def gameloop(self):
         self.pieces_to_board()
-        self.board_out()
+        self.board_out([1,1])
         while not self.gameover:
             event = self.window.getch()
             (bx,by) = self.inputs(event)
@@ -74,28 +74,31 @@ class Game:
                 return (round((mouse[1]-round(self.width/2)+8)/2),mouse[2]-round(self.height/2)+4)
         return(-1,-1)
 
-    def board_out(self):
+    def board_out(self,*highlight):
         for (i,row) in enumerate(self.board):
             for (j,square) in enumerate(row):
                 if (j+i)%2!=0:
-                    if square[1]== "white":
-                        self.window.attron(curses.color_pair(4))
-                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
-                        self.window.attroff(curses.color_pair(4))
-                    elif square[1] == "black":
-                        self.window.attron(curses.color_pair(6))
-                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
-                        self.window.attroff(curses.color_pair(6))
+                    if [i,j] in highlight:
+                        self.square_out(square,2,1,j,i)
+                    else:
+                        self.square_out(square,4,6,j,i)
                 elif (j+i)%2==0:
-                    if square[1] == "white":
-                        self.window.attron(curses.color_pair(5))
-                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
-                        self.window.attroff(curses.color_pair(5))
-                    elif square[1] == "black":
-                        self.window.attron(curses.color_pair(7))
-                        self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
-                        self.window.attroff(curses.color_pair(7))
+                    if [i,j] in highlight:
+                        self.square_out(square,2,1,j,i)
+                    else:
+                        self.square_out(square,5,7,j,i)
                 self.window.refresh()
+
+    def square_out(self,square,pair1,pair2,j,i):
+        if square[1] == "white":
+            self.window.attron(curses.color_pair(pair1))
+            self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+            self.window.attroff(curses.color_pair(pair1))
+        elif square[1] == "black":
+            self.window.attron(curses.color_pair(pair2))
+            self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+            self.window.attroff(curses.color_pair(pair2))
+
 
 class Piece:
     def __init__(self,piece,color:str,x:int,y:int):
