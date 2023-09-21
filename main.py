@@ -1,23 +1,32 @@
 from enum import Enum
 import curses
+import math
+def round_half_up(n):
+    return int(n+0.25)
 
 
 class Game:
     def __init__(self,player1,player2):
-        self.board = [[["  ","black"]for i in range(8)] for i in range(8)] 
+        self.board = [[[" ","black"]for i in range(8)] for i in range(8)] 
         self.player1 = player1
         self.player2 = player2
         self.gameover = False
+        #init screen
+        self.screen = curses.initscr()
+        #dimensions of window
+        if curses.COLS %2 ==0:
+            self.width = curses.COLS
+        else:
+            self.width = curses.COLS-1
+        self.height = curses.LINES
         #initialise window
-        self.window = curses.initscr()
+        self.window = curses.newwin(8,17,round_half_up(self.height/2)-4,round_half_up(self.width/2)-8)
         #set up keystrokes and mouse inputes
         self.window.keypad(1)
+        self.window.nodelay(False)
         curses.noecho()
         curses.curs_set(0)
         curses.mousemask(1)
-        #dimensions of window
-        self.width = curses.COLS
-        self.height = curses.LINES
         #starts colors 
         curses.start_color()
         # dark brown 
@@ -44,16 +53,19 @@ class Game:
         #black light brown
         curses.init_pair(7,3,2)
         self.window.attrset(curses.color_pair(3))
+        self.screen.bkgdset(" ",curses.color_pair(3))
 
     def gameloop(self):
         self.pieces_to_board()
-        self.board_out([1,1])
+        self.board_out()
         while not self.gameover:
             event = self.window.getch()
             (bx,by) = self.inputs(event)
             for piece in self.player1.pieces:
                 if (bx,by) == (piece.position[0],piece.position[1]) and self.player1.is_turn:
-                    self.gameover = True
+                    self.board_out([bx,by])
+                    self.window.refresh()
+                    
             for piece in self.player2.pieces:
                 if (bx,by) == (piece.position[0],piece.position[1]) and self.player2.is_turn:
                     self.gameover = True
@@ -69,9 +81,12 @@ class Game:
             self.gameover = True
         if event == curses.KEY_MOUSE:
             mouse = curses.getmouse()
-            if (mouse[2] >=round(self.height/2)-4 and mouse[2] <=round(self.height/2)+4) and (mouse[1]>=round(self.width/2)-8 and mouse[1] <=round(self.width/2)+8):
+            with open("output.txt","a") as f:
+                f.write(f"{mouse[1],mouse[2]}")
+            f.close()
+            if (mouse[2] >=round_half_up(self.height/2)-4 and mouse[2] <=round_half_up(self.height/2)+4) and (mouse[1]>=round_half_up(self.width/2)-8 and mouse[1] <=round_half_up(self.width/2)+8):
                 #returns chess cords 
-                return (round((mouse[1]-round(self.width/2)+8)/2),mouse[2]-round(self.height/2)+4)
+                return (int(int(mouse[1]-self.width/2+8)/2),mouse[2]-int(self.height/2)+4)
         return(-1,-1)
 
     def board_out(self,*highlight):
@@ -92,33 +107,35 @@ class Game:
     def square_out(self,square,pair1,pair2,j,i):
         if square[1] == "white":
             self.window.attron(curses.color_pair(pair1))
-            self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+            self.window.addch(j,2*i,square[0])
+            self.window.addch(j,2*i+1," ")
             self.window.attroff(curses.color_pair(pair1))
         elif square[1] == "black":
             self.window.attron(curses.color_pair(pair2))
-            self.window.addstr(j+round(self.height/2)-4,2*i+round(self.width/2)-8,square[0])
+            self.window.addch(j,2*i,square[0])
+            self.window.addch(j,2*i+1," ")
             self.window.attroff(curses.color_pair(pair2))
 
 
 class Piece:
     def __init__(self,piece,color:str,x:int,y:int):
         self.piece_type = piece 
-        self.piece_output = ["  ",color]   
+        self.piece_output = [" ",color]   
         if  self.piece_type.value==1: 
-            self.piece_output = ["♟ ",color]
+            self.piece_output = ["♟",color]
         if self.piece_type.value ==2: 
-            self.piece_output = ["♞ ",color]
+            self.piece_output = ["♞",color]
         if self.piece_type.value==3:
-            self.piece_output = ["♝ ",color]
+            self.piece_output = ["♝",color]
         if self.piece_type.value==4:
-            self.piece_output = ["♜ ",color]
+            self.piece_output = ["♜",color]
         if self.piece_type.value==5:
-            self.piece_output = ["♛ ",color]
+            self.piece_output = ["♛",color]
         if self.piece_type.value==6:
-            self.piece_output = ["♚ ",color]
+            self.piece_output = ["♚",color]
         self.color = color
         self.position = [x,y]
-                
+
 
 class Player:
     def __init__(self,turn:bool,pieces):
