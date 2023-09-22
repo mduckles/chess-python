@@ -1,6 +1,8 @@
 from enum import Enum
 import curses
 import math
+from stockfish import Stockfish
+
 def round_half_up(n):
     return int(n+0.25)
 
@@ -59,17 +61,33 @@ class Game:
         self.pieces_to_board()
         self.board_out()
         while not self.gameover:
-            event = self.window.getch()
-            (bx,by) = self.inputs(event)
-            for piece in self.player1.pieces:
-                if (bx,by) == (piece.position[0],piece.position[1]) and self.player1.is_turn:
-                    self.board_out([bx,by])
-                    self.window.refresh()
-                    event2 = self.window.getch()
-                    (x,y) = self.inputs(event)
-                    self.move_piece(piece,(x,y))
-                    self.board_out()
-                    self.window.refresh()
+            if self.player1.is_turn:
+                event = self.window.getch()
+                (bx,by) = self.inputs(event)
+                for piece in self.player1.pieces:
+                    if (bx,by) == (piece.position[0],piece.position[1]) and self.player1.is_turn:
+                        self.board_out([bx,by])
+                        self.window.refresh()
+                        event2 = self.window.getch()
+                        (x,y) = self.inputs(event)
+                        if (x,y) != (-1,-1):
+                            self.move_piece(piece,(x,y))
+                            self.board_out()
+                            self.window.refresh()
+                        else:
+                            self.board_out()
+                            self.window.refresh()
+                            continue
+                        #changes turn 
+                        # self.player1.is_turn =False
+                        # self.player2.is_turn = True
+
+            elif self.player2.is_turn:
+                pass
+            #just incase it isn't anybodys turn for some reason doesn't get stuck in infinite loop
+            else:
+                break
+            
                     
                     
                     
@@ -78,6 +96,7 @@ class Game:
     def move_piece(self,piece,cords):
         self.board[cords[0]][cords[1]] = piece.piece_output
         self.board[piece.position[0]][piece.position[1]] = [" ",piece.color]
+        piece.position = [cords[0],cords[1]]
 
     def pieces_to_board(self):
         for piece in self.player1.pieces+self.player2.pieces:
@@ -88,9 +107,6 @@ class Game:
             self.gameover = True
         if event == curses.KEY_MOUSE:
             mouse = curses.getmouse()
-            with open("output.txt","a") as f:
-                f.write(f"{mouse[1],mouse[2]}")
-            f.close()
             if (mouse[2] >=round_half_up(self.height/2)-4 and mouse[2] <=round_half_up(self.height/2)+4) and (mouse[1]>=round_half_up(self.width/2)-8 and mouse[1] <=round_half_up(self.width/2)+8):
                 #returns chess cords 
                 return (int(int(mouse[1]-self.width/2+8)/2),mouse[2]-int(self.height/2)+4)
