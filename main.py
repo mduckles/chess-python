@@ -65,12 +65,19 @@ class Game:
                 if (bx,by) == (piece.position[0],piece.position[1]) and self.player1.is_turn:
                     self.board_out([bx,by])
                     self.window.refresh()
+                    event2 = self.window.getch()
+                    (x,y) = self.inputs(event)
+                    self.move_piece(piece,(x,y))
+                    self.board_out()
+                    self.window.refresh()
                     
-            for piece in self.player2.pieces:
-                if (bx,by) == (piece.position[0],piece.position[1]) and self.player2.is_turn:
-                    self.gameover = True
+                    
                     
         curses.endwin()
+
+    def move_piece(self,piece,cords):
+        self.board[cords[0]][cords[1]] = piece.piece_output
+        self.board[piece.position[0]][piece.position[1]] = [" ",piece.color]
 
     def pieces_to_board(self):
         for piece in self.player1.pieces+self.player2.pieces:
@@ -136,6 +143,48 @@ class Piece:
         self.color = color
         self.position = [x,y]
 
+    def posible_moves(self,board):
+        if  self.piece_type.value==1: 
+            self.pawn_moves(board)
+        if self.piece_type.value ==2: 
+            self.knight_moves(board)
+        if self.piece_type.value==3:
+            self.bishop_moves(board)
+        if self.piece_type.value==4:
+            self.rook_moves(board)
+        if self.piece_type.value==5:
+            self.queen_moves(board)
+        if self.piece_type.value==6:
+            self.king_moves(board)
+        
+
+    def pawn_moves(self,board):
+        possible_moves = []
+        #capturing
+        if self.position[1]==0:
+            if board[1][self.position[0]+1] != " ":
+                possible_moves.append(1,[self.position[0]])
+        elif self.position[1]==7:
+            if board[6][self.position[0]+1] !=" ":
+                possible_moves.append([6,self.position[0]])
+        else:
+            if board[self.position[0]-1][self.position[1]+1]:
+                pass
+                
+    def knight_moves(self,board):
+        pass
+
+    def bishop_moves(self,board):
+        pass
+
+    def rook_moves(self,board):
+        pass
+
+    def queen_moves(self,board):
+        pass
+
+    def king_moves(self,board):
+        pass 
 
 class Player:
     def __init__(self,turn:bool,pieces):
