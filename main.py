@@ -9,7 +9,7 @@ def round_half_up(n):
 
 class Game:
     def __init__(self,player1,player2):
-        self.board = [[[" ","black"]for i in range(8)] for i in range(8)] 
+        self.board = [[[" ",""]for i in range(8)] for i in range(8)] 
         self.player1 = player1
         self.player2 = player2
         self.gameover = False
@@ -139,7 +139,7 @@ class Game:
             self.window.addch(j,2*i,square[0])
             self.window.addch(j,2*i+1," ")
             self.window.attroff(curses.color_pair(pair1))
-        elif square[1] == "black":
+        elif square[1] == "black" or square[1]=="":
             self.window.attron(curses.color_pair(pair2))
             self.window.addch(j,2*i,square[0])
             self.window.addch(j,2*i+1," ")
@@ -184,10 +184,10 @@ class Piece:
         possible_moves = []
         #capturing
         if self.position[0]==0:
-            if board[1][self.position[1]-1][0] != " ":
+            if board[1][self.position[1]-1][0] != " " and board[1][self.position[1]-1][1] != "white":
                 possible_moves.append([1,self.position[1]-1])
         elif self.position[0]==7:
-            if board[6][self.position[1]-1][0] !=" ":
+            if board[6][self.position[1]-1][0] !=" " and board[6][self.position[1]-1][1] != "white":
                 possible_moves.append([6,self.position[1]-1])
         else:
             if board[self.position[0]-1][self.position[1]-1][0] != " ":
