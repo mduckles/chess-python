@@ -98,7 +98,7 @@ class Game:
 
     def move_piece(self,piece,cords):
         self.board[cords[0]][cords[1]] = piece.piece_output
-        self.board[piece.position[0]][piece.position[1]] = [" ",piece.color]
+        self.board[piece.position[0]][piece.position[1]] = [" ",""]
         piece.position = [cords[0],cords[1]]
 
     def pieces_to_board(self):
@@ -190,9 +190,9 @@ class Piece:
             if board[6][self.position[1]-1][0] !=" " and board[6][self.position[1]-1][1] != "white":
                 possible_moves.append([6,self.position[1]-1])
         else:
-            if board[self.position[0]-1][self.position[1]-1][0] != " ":
+            if board[self.position[0]-1][self.position[1]-1][1] != "white" and board[self.position[0]-1][self.position[1]-1][0]!=" ":
                 possible_moves.append([self.position[0]-1,self.position[1]-1])
-            if board[self.position[0]+1][self.position[1]-1][0] != " ":
+            if board[self.position[0]+1][self.position[1]-1][1] != "white" and board[self.position[0]+1][self.position[1]-1][0] != " ":
                 possible_moves.append([self.position[0]+1,self.position[1]-1])
         #double move
         if self.position[1] == 6 and board[self.position[0]][self.position[1]-1][0] == " " and board[self.position[0]][self.position[1]-2][0] == " ":
@@ -204,6 +204,46 @@ class Piece:
                 
     def knight_moves(self,board):
         possible_moves = []
+        try:
+            if board[self.position[0]-1][self.position[1]-2][1] != "white":
+                possible_moves.append([self.position[0]-1,self.position[1]-2])
+        except:
+            pass
+        try:
+            if board[self.position[0]-1][self.position[1]+2][1] != "white":
+                possible_moves.append([self.position[0]-1,self.position[1]+2])
+        except:
+            pass
+        try:
+            if board[self.position[0]+1][self.position[1]-2][1] != "white":
+                possible_moves.append([self.position[0]+1,self.position[1]-2])
+        except:
+            pass
+        try:
+            if board[self.position[0]+1][self.position[1]+2][1] != "white":
+                possible_moves.append([self.position[0]+1,self.position[1]+2])
+        except:
+            pass
+        try:
+            if board[self.position[0]-2][self.position[1]-1][1] != "white":
+                possible_moves.append([self.position[0]-2,self.position[1]-1])
+        except:
+            pass
+        try:
+            if board[self.position[0]-2][self.position[1]+1][1] != "white":
+                possible_moves.append([self.position[0]-2,self.position[1]+1])
+        except:
+            pass
+        try:
+            if board[self.position[0]+2][self.position[1]-1][1] != "white":
+                possible_moves.append([self.position[0]+2,self.position[1]-1])
+        except:
+            pass
+        try:
+            if board[self.position[0]+2][self.position[1]+1][1] != "white":
+                possible_moves.append([self.position[0]+2,self.position[1]+1])
+        except:
+            pass
         return possible_moves
 
     def bishop_moves(self,board):
