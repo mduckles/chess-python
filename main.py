@@ -66,18 +66,21 @@ class Game:
                 (bx,by) = self.inputs(event)
                 for piece in self.player1.pieces:
                     if (bx,by) == (piece.position[0],piece.position[1]) and self.player1.is_turn:
-                        self.board_out([bx,by])
+                        possible_moves = piece.possible_moves(self.board) 
+                        highlight = possible_moves+[[bx,by]]
+                        self.board_out(highlight)
                         self.window.refresh()
                         event2 = self.window.getch()
                         (x,y) = self.inputs(event)
-                        if (x,y) != (-1,-1):
-                            self.move_piece(piece,(x,y))
-                            self.board_out()
-                            self.window.refresh()
-                        else:
-                            self.board_out()
-                            self.window.refresh()
-                            continue
+                        if [x,y] in possible_moves:
+                            if (x,y) != (-1,-1):
+                                self.move_piece(piece,(x,y))
+                                self.board_out()
+                                self.window.refresh()
+                            else:
+                                self.board_out()
+                                self.window.refresh()
+                                continue
                         #changes turn 
                         # self.player1.is_turn =False
                         # self.player2.is_turn = True
@@ -113,18 +116,21 @@ class Game:
         return(-1,-1)
 
     def board_out(self,*highlight):
+        with open("output.txt","a") as f:
+            f.write(f"{highlight}\n")
+        f.close()
         for (i,row) in enumerate(self.board):
             for (j,square) in enumerate(row):
                 if (j+i)%2!=0:
-                    if [i,j] in highlight:
-                        self.square_out(square,2,1,j,i)
-                    else:
-                        self.square_out(square,4,6,j,i)
+                    self.square_out(square,4,6,j,i)
+                    if len(highlight) != 0:
+                        if [i,j] in highlight[0]:
+                            self.square_out(square,2,1,j,i)
                 elif (j+i)%2==0:
-                    if [i,j] in highlight:
-                        self.square_out(square,2,1,j,i)
-                    else:
-                        self.square_out(square,5,7,j,i)
+                    self.square_out(square,5,7,j,i)
+                    if len(highlight) != 0:
+                        if [i,j] in highlight[0]:
+                            self.square_out(square,2,1,j,i)
                 self.window.refresh()
 
     def square_out(self,square,pair1,pair2,j,i):
@@ -159,48 +165,62 @@ class Piece:
         self.color = color
         self.position = [x,y]
 
-    def posible_moves(self,board):
+    def possible_moves(self,board):
         if  self.piece_type.value==1: 
-            self.pawn_moves(board)
+            return self.pawn_moves(board)
         if self.piece_type.value ==2: 
-            self.knight_moves(board)
+            return self.knight_moves(board)
         if self.piece_type.value==3:
-            self.bishop_moves(board)
+            return self.bishop_moves(board)
         if self.piece_type.value==4:
-            self.rook_moves(board)
+            return self.rook_moves(board)
         if self.piece_type.value==5:
-            self.queen_moves(board)
+            return self.queen_moves(board)
         if self.piece_type.value==6:
-            self.king_moves(board)
+            return self.king_moves(board)
         
 
     def pawn_moves(self,board):
         possible_moves = []
         #capturing
-        if self.position[1]==0:
-            if board[1][self.position[0]+1] != " ":
-                possible_moves.append(1,[self.position[0]])
-        elif self.position[1]==7:
-            if board[6][self.position[0]+1] !=" ":
-                possible_moves.append([6,self.position[0]])
+        if self.position[0]==0:
+            if board[1][self.position[1]-1][0] != " ":
+                possible_moves.append([1,self.position[1]-1])
+        elif self.position[0]==7:
+            if board[6][self.position[1]-1][0] !=" ":
+                possible_moves.append([6,self.position[1]-1])
         else:
-            if board[self.position[0]-1][self.position[1]+1]:
-                pass
+            if board[self.position[0]-1][self.position[1]-1][0] != " ":
+                possible_moves.append([self.position[0]-1,self.position[1]-1])
+            if board[self.position[0]+1][self.position[1]-1][0] != " ":
+                possible_moves.append([self.position[0]+1,self.position[1]-1])
+        #double move
+        if self.position[1] == 6 and board[self.position[0]][self.position[1]-1][0] == " " and board[self.position[0]][self.position[1]-2][0] == " ":
+            possible_moves.append([self.position[0],self.position[1]-2])
+        if board[self.position[0]][self.position[1]-1][0] == " ":
+            possible_moves.append([self.position[0],self.position[1]-1])
+        return possible_moves
+                
                 
     def knight_moves(self,board):
-        pass
+        possible_moves = []
+        return possible_moves
 
     def bishop_moves(self,board):
-        pass
+        possible_moves = []
+        return possible_moves
 
     def rook_moves(self,board):
-        pass
+        possible_moves = []
+        return possible_moves
 
     def queen_moves(self,board):
-        pass
+        possible_moves = []
+        return possible_moves
 
     def king_moves(self,board):
-        pass 
+        possible_moves = []
+        return possible_moves
 
 class Player:
     def __init__(self,turn:bool,pieces):
