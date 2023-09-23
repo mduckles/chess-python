@@ -248,6 +248,56 @@ class Piece:
 
     def bishop_moves(self,board):
         possible_moves = []
+        #downward
+        for i in range(1,7):
+            try:
+                if board[self.position[0]+i][self.position[1]+i][1] == "":
+                    possible_moves.append([self.position[0]+i,self.position[1]+i])
+                    
+                if board[self.position[0]+i][self.position[1]+i][1] == "black":
+                    possible_moves.append([self.position[0]+i,self.position[1]+i])
+                    break
+                if board[self.position[0]+i][self.position[1]+i][1] == "white":
+                    break
+            except:
+                pass
+        for i in range(1,7):
+            try:
+                if board[self.position[0]-i][self.position[1]+i][1] == "":
+                    possible_moves.append([self.position[0]-i,self.position[1]+i])
+                    
+                if board[self.position[0]-i][self.position[1]+i][1] == "black":
+                    possible_moves.append([self.position[0]-i,self.position[1]+i])
+                    break
+                if board[self.position[0]-i][self.position[1]+i][1] == "white":
+                    break
+            except:
+                pass
+        for i in range(1,7):
+            try:
+                if board[self.position[0]+i][self.position[1]-i][1] == "":
+                    possible_moves.append([self.position[0]+i,self.position[1]-i])
+                    
+                if board[self.position[0]+i][self.position[1]-i][1] == "black":
+                    possible_moves.append([self.position[0]+i,self.position[1]-i])
+                    break
+                if board[self.position[0]+i][self.position[1]-i][1] == "white":
+                    break
+            except:
+                pass
+        for i in range(1,7):
+            try:
+                if board[self.position[0]-i][self.position[1]-i][1] == "":
+                    possible_moves.append([self.position[0]-i,self.position[1]-i])
+                    
+                if board[self.position[0]-i][self.position[1]-i][1] == "black":
+                    possible_moves.append([self.position[0]-i,self.position[1]-i])
+                    break
+                if board[self.position[0]-i][self.position[1]-i][1] == "white":
+                    break
+            except:
+                pass
+                
         return possible_moves
 
     def rook_moves(self,board):
