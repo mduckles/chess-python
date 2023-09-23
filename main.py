@@ -358,6 +358,47 @@ class Piece:
 
     def king_moves(self,board):
         possible_moves = []
+        try:
+            if board[self.position[0]][self.position[1]-1][1] != "white":
+                possible_moves.append([self.position[0],self.position[1]-1])
+        except:
+            pass
+        try:
+            if board[self.position[0]-1][self.position[1]-1][1] != "white":
+                possible_moves.append([self.position[0]-1,self.position[1]-1])
+        except:
+            pass
+        
+        try:
+            if board[self.position[0]+1][self.position[1]-1][1] != "white":
+                possible_moves.append([self.position[0]+1,self.position[1]-1])
+        except:
+            pass
+        try:
+            if board[self.position[0]+1][self.position[1]][1] != "white":
+                possible_moves.append([self.position[0]+1,self.position[1]])
+        except:
+            pass
+        try:
+            if board[self.position[0]-1][self.position[1]][1] != "white":
+                possible_moves.append([self.position[0]-1,self.position[1]])
+        except:
+            pass
+        try:
+            if board[self.position[0]][self.position[1]+1][1] != "white":
+                possible_moves.append([self.position[0],self.position[1]+1])
+        except:
+            pass
+        try:
+            if board[self.position[0]-1][self.position[1]+1][1] != "white":
+                possible_moves.append([self.position[0]-1,self.position[1]+1])
+        except:
+            pass
+        try:
+            if board[self.position[0]+1][self.position[1]+1][1] != "white":
+                possible_moves.append([self.position[0]+1,self.position[1]+1])
+        except:
+            pass
         return possible_moves
 
 class Player:
