@@ -1,7 +1,11 @@
 from enum import Enum
 import curses
 import math
-from stockfish import Stockfish
+from pystockfish import *
+
+deep = Engine(depth=20)
+
+letters = ['a','b','c','d','e','f','g','h']
 
 def round_half_up(n):
     return int(n+0.25)
@@ -9,6 +13,7 @@ def round_half_up(n):
 
 class Game:
     def __init__(self,player1,player2):
+        self.moves = []
         self.board = [[[" ",""]for i in range(8)] for i in range(8)] 
         self.player1 = player1
         self.player2 = player2
@@ -65,7 +70,7 @@ class Game:
                 event = self.window.getch()
                 (bx,by) = self.inputs(event)
                 for piece in self.player1.pieces:
-                    if (bx,by) == (piece.position[0],piece.position[1]) and self.player1.is_turn:
+                    if (bx,by) == (piece.position[0],piece.position[1]):
                         possible_moves = piece.possible_moves(self.board) 
                         highlight = possible_moves+[[bx,by]]
                         self.board_out(highlight)
@@ -82,11 +87,31 @@ class Game:
                                 self.window.refresh()
                                 continue
                         #changes turn 
-                        # self.player1.is_turn =False
-                        # self.player2.is_turn = True
+                        self.player1.is_turn =False
+                        self.player2.is_turn = True
 
             elif self.player2.is_turn:
-                pass
+                deep.setposition(self.moves)
+                move = deep.bestmove()["move"]
+                xi = str([i for (i,l) in enumerate(letters) if l == move[0]])[1]
+                yi = str(8-int(move[1]))
+                xf = str([i for (i,l) in enumerate(letters) if l == move[2]])[1]
+                yf = str(8-int(move[3]))
+                with open("output.txt","a") as f:
+                    f.write(f"{move,self.moves}")
+                f.close()
+
+                for piece in self.player2.pieces:
+                    if [piece.position[0],piece.position[1]] == [int(xi),int(yi)]:
+                        self.move_piece(piece,[int(xf),int(yf)])
+                        self.board_out()
+                        self.window.refresh()
+                self.player1.is_turn =True
+                self.player2.is_turn =False 
+
+                    
+
+                
             #just incase it isn't anybodys turn for some reason doesn't get stuck in infinite loop
             else:
                 break
@@ -97,6 +122,7 @@ class Game:
         curses.endwin()
 
     def move_piece(self,piece,cords):
+        self.moves.append(f'{letters[piece.position[0]]}{8-piece.position[1]}{letters[cords[0]]}{8-cords[1]}')
         self.board[cords[0]][cords[1]] = piece.piece_output
         self.board[piece.position[0]][piece.position[1]] = [" ",""]
         piece.position = [cords[0],cords[1]]
@@ -116,17 +142,14 @@ class Game:
         return(-1,-1)
 
     def board_out(self,*highlight):
-        with open("output.txt","a") as f:
-            f.write(f"{highlight}\n")
-        f.close()
         for (i,row) in enumerate(self.board):
             for (j,square) in enumerate(row):
-                if (j+i)%2!=0:
+                if (j+i)%2==0:
                     self.square_out(square,4,6,j,i)
                     if len(highlight) != 0:
                         if [i,j] in highlight[0]:
                             self.square_out(square,2,1,j,i)
-                elif (j+i)%2==0:
+                elif (j+i)%2!=0:
                     self.square_out(square,5,7,j,i)
                     if len(highlight) != 0:
                         if [i,j] in highlight[0]:
@@ -430,8 +453,8 @@ def main():
                       Piece(PieceType.Rook,"white",0,7),
                       Piece(PieceType.Knight,"white",1,7),
                       Piece(PieceType.Bishop,"white",2,7),
-                      Piece(PieceType.King,"white",3,7),
-                      Piece(PieceType.Queen,"white",4,7),
+                      Piece(PieceType.King,"white",4,7),
+                      Piece(PieceType.Queen,"white",3,7),
                       Piece(PieceType.Bishop,"white",5,7),
                       Piece(PieceType.Knight,"white",6,7),
                       Piece(PieceType.Rook,"white",7,7),
