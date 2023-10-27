@@ -105,9 +105,6 @@ class Game:
                             is_piece_clicked = False
                             continue
                     #changes turn 
-                    with open("output.txt","a") as f:
-                        f.write(f"turn: player1 played\n")
-                    f.close()
                     piece_clicked = 0
                     is_piece_clicked = False
 
@@ -124,15 +121,9 @@ class Game:
                 xf = str([i for (i,l) in enumerate(letters) if l == move[2]])[1]
                 yf = str(8-int(move[3]))
                 
-                with open("output.txt","a") as f:
-                    f.write(f"{move}]\n")
-                f.close()
 
                 if move == "e8g8":
                     for piece in self.player2.pieces:
-                        with open("output.txt","a") as f:
-                            f.write(f"{piece.position}\n")
-                        f.close()
                         if piece.position == [7,0]:
                             self.move_piece(piece,[5,0],True)
                         if piece.position == [4,0]:
@@ -156,14 +147,8 @@ class Game:
                 else:
                     for piece in self.player2.pieces:
                         if [piece.position[0],piece.position[1]] == [int(xi),int(yi)]:
-                            with open("output.txt","a") as f:
-                                f.write(f"if1\n")
-                            f.close()
                             for (i,piece2) in enumerate(self.player1.pieces):
                                 if [piece2.position[0],piece2.position[1]] == [int(xf),int(yf)]:
-                                    with open("output.txt","a") as f:
-                                        f.write(f"if2\n")
-                                    f.close()
                                     self.player1.pieces.pop(i)
                                     break
 
@@ -172,9 +157,6 @@ class Game:
                             self.window.refresh()
                             self.player1.is_turn =True
                             self.player2.is_turn =False 
-                            with open("output.txt","a") as f:
-                                f.write(f"turn:player2 played\n")
-                            f.close()
                 count+=1
                 if count >= 1000:
                     player2_won = True
@@ -522,9 +504,6 @@ class Gamestate(Enum):
 
 
 def main():
-    with open("output.txt","w") as f:
-        f.write("")
-    f.close()
     player1_peices = [
                       Piece(PieceType.Rook,"white",0,7),
                       Piece(PieceType.Knight,"white",1,7),
