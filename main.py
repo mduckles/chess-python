@@ -67,6 +67,9 @@ class Game:
         self.board_out()
         is_piece_clicked = False
         piece_clicked = self.player1.pieces[0]       
+        count =0
+        player1_won = False
+        player2_won = False
         while not self.gameover:
             if self.player1.is_turn:
                 if not is_piece_clicked:
@@ -94,6 +97,8 @@ class Game:
                             self.board_out()
                             self.window.refresh()
                             is_piece_clicked = False
+                            self.player1.is_turn =False
+                            self.player2.is_turn = True
                         else:
                             self.board_out()
                             self.window.refresh()
@@ -105,12 +110,15 @@ class Game:
                     f.close()
                     piece_clicked = 0
                     is_piece_clicked = False
-                    self.player1.is_turn =False
-                    self.player2.is_turn = True
 
             elif self.player2.is_turn:
                 deep.setposition(self.moves)
-                move = deep.bestmove()["move"]
+                try:
+                    move = deep.bestmove()["move"]
+                except:
+                    player1_won = True
+                    self.gameover = True
+
                 xi = str([i for (i,l) in enumerate(letters) if l == move[0]])[1]
                 yi = str(8-int(move[1]))
                 xf = str([i for (i,l) in enumerate(letters) if l == move[2]])[1]
@@ -125,17 +133,25 @@ class Game:
                         with open("output.txt","a") as f:
                             f.write(f"{piece.position}\n")
                         f.close()
-                        if piece.position == [4,0]:
-                            self.move_piece(piece,[int(xf),int(yf)])
                         if piece.position == [7,0]:
                             self.move_piece(piece,[5,0],True)
+                        if piece.position == [4,0]:
+                            self.move_piece(piece,[int(xf),int(yf)])
+                        self.board_out()
+                        self.window.refresh()
+                        self.player1.is_turn =True
+                        self.player2.is_turn =False 
 
                 elif move == "e8c8":
                     for piece in self.player2.pieces:
-                        if piece.position == [4,0]:
-                            self.move_piece(piece,[int(xf),int(yf)])
                         if piece.position == [0,0]:
                             self.move_piece(piece,[3,0],True)
+                        if piece.position == [4,0]:
+                            self.move_piece(piece,[int(xf),int(yf)])
+                        self.board_out()
+                        self.window.refresh()
+                        self.player1.is_turn =True
+                        self.player2.is_turn =False 
 
                 else:
                     for piece in self.player2.pieces:
@@ -154,14 +170,17 @@ class Game:
                             self.move_piece(piece,[int(xf),int(yf)])
                             self.board_out()
                             self.window.refresh()
-                with open("output.txt","a") as f:
-                    f.write(f"turn:player2 played\n")
-                f.close()
+                            self.player1.is_turn =True
+                            self.player2.is_turn =False 
+                            with open("output.txt","a") as f:
+                                f.write(f"turn:player2 played\n")
+                            f.close()
+                count+=1
+                if count >= 1000:
+                    player2_won = True
+                    self.gameover = True
 
-                self.player1.is_turn =True
-                self.player2.is_turn =False 
 
-                    
 
                 
             #just incase it isn't anybodys turn for some reason doesn't get stuck in infinite loop
@@ -172,6 +191,10 @@ class Game:
                     
                     
         curses.endwin()
+        if player2_won:
+            print("You lost your bad at the game(if you made an illigel move the abitor is a bit angry so you lose)")
+        if player1_won:
+            print("You won which meant you cheated. I know where you live in a non creepy way")
 
     def move_piece(self,piece,cords,*castle):
         if not castle:
