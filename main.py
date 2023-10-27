@@ -3,7 +3,7 @@ import curses
 import math
 from pystockfish import *
 
-deep = Engine(depth=20)
+deep = Engine(depth=10)
 
 letters = ['a','b','c','d','e','f','g','h']
 
@@ -68,8 +68,6 @@ class Game:
         is_piece_clicked = False
         piece_clicked = self.player1.pieces[0]       
         while not self.gameover:
-            with open("output.txt","a") as f:
-                f.write(f"{[i.position for i in self.player1.pieces]}\n{[i.position for i in self.player2.pieces]}\n")
             if self.player1.is_turn:
                 if not is_piece_clicked:
                     event = self.window.getch()
@@ -90,7 +88,7 @@ class Game:
                         if (x,y) != (-1,-1):
                             for (i,piece2) in enumerate(self.player2.pieces):
                                 if [piece2.position[0],piece2.position[1]] == [int(x),int(y)]:
-                                    self.player1.pieces.pop(i)
+                                    self.player2.pieces.pop(i)
                                     break
                             self.move_piece(piece_clicked,(x,y))
                             self.board_out()
@@ -102,6 +100,9 @@ class Game:
                             is_piece_clicked = False
                             continue
                     #changes turn 
+                    with open("output.txt","a") as f:
+                        f.write(f"turn: player1 played\n")
+                    f.close()
                     piece_clicked = 0
                     is_piece_clicked = False
                     self.player1.is_turn =False
@@ -114,20 +115,49 @@ class Game:
                 yi = str(8-int(move[1]))
                 xf = str([i for (i,l) in enumerate(letters) if l == move[2]])[1]
                 yf = str(8-int(move[3]))
-                count = 0
+                
+                with open("output.txt","a") as f:
+                    f.write(f"{move}]\n")
+                f.close()
 
-                for piece in self.player2.pieces:
-                    if [piece.position[0],piece.position[1]] == [int(xi),int(yi)]:
-                        for (i,piece2) in enumerate(self.player1.pieces):
-                            if [piece2.position[0],piece2.position[1]] == [int(xf),int(yf)]:
-                                self.player1.pieces.pop(i)
-                                break
+                if move == "e8g8":
+                    for piece in self.player2.pieces:
+                        with open("output.txt","a") as f:
+                            f.write(f"{piece.position}\n")
+                        f.close()
+                        if piece.position == [4,0]:
+                            self.move_piece(piece,[int(xf),int(yf)])
+                        if piece.position == [7,0]:
+                            self.move_piece(piece,[5,0],True)
 
-                        self.move_piece(piece,[int(xf),int(yf)])
-                        self.board_out()
-                        self.window.refresh()
-                    else:
-                        count +=1
+                elif move == "e8c8":
+                    for piece in self.player2.pieces:
+                        if piece.position == [4,0]:
+                            self.move_piece(piece,[int(xf),int(yf)])
+                        if piece.position == [0,0]:
+                            self.move_piece(piece,[3,0],True)
+
+                else:
+                    for piece in self.player2.pieces:
+                        if [piece.position[0],piece.position[1]] == [int(xi),int(yi)]:
+                            with open("output.txt","a") as f:
+                                f.write(f"if1\n")
+                            f.close()
+                            for (i,piece2) in enumerate(self.player1.pieces):
+                                if [piece2.position[0],piece2.position[1]] == [int(xf),int(yf)]:
+                                    with open("output.txt","a") as f:
+                                        f.write(f"if2\n")
+                                    f.close()
+                                    self.player1.pieces.pop(i)
+                                    break
+
+                            self.move_piece(piece,[int(xf),int(yf)])
+                            self.board_out()
+                            self.window.refresh()
+                with open("output.txt","a") as f:
+                    f.write(f"turn:player2 played\n")
+                f.close()
+
                 self.player1.is_turn =True
                 self.player2.is_turn =False 
 
@@ -143,8 +173,9 @@ class Game:
                     
         curses.endwin()
 
-    def move_piece(self,piece,cords):
-        self.moves.append(f'{letters[piece.position[0]]}{8-piece.position[1]}{letters[cords[0]]}{8-cords[1]}')
+    def move_piece(self,piece,cords,*castle):
+        if not castle:
+            self.moves.append(f'{letters[piece.position[0]]}{8-piece.position[1]}{letters[cords[0]]}{8-cords[1]}')
         self.board[cords[0]][cords[1]] = piece.piece_output
         self.board[piece.position[0]][piece.position[1]] = [" ",""]
         piece.position = [cords[0],cords[1]]
