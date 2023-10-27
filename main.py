@@ -65,30 +65,47 @@ class Game:
     def gameloop(self):
         self.pieces_to_board()
         self.board_out()
+        is_piece_clicked = False
+        piece_clicked = self.player1.pieces[0]       
         while not self.gameover:
+            with open("output.txt","a") as f:
+                f.write(f"{[i.position for i in self.player1.pieces]}\n{[i.position for i in self.player2.pieces]}\n")
             if self.player1.is_turn:
-                event = self.window.getch()
-                (bx,by) = self.inputs(event)
-                for piece in self.player1.pieces:
-                    if (bx,by) == (piece.position[0],piece.position[1]):
-                        possible_moves = piece.possible_moves(self.board) 
-                        highlight = possible_moves+[[bx,by]]
-                        self.board_out(highlight)
-                        self.window.refresh()
-                        event2 = self.window.getch()
-                        (x,y) = self.inputs(event)
-                        if [x,y] in possible_moves:
-                            if (x,y) != (-1,-1):
-                                self.move_piece(piece,(x,y))
-                                self.board_out()
-                                self.window.refresh()
-                            else:
-                                self.board_out()
-                                self.window.refresh()
-                                continue
-                        #changes turn 
-                        self.player1.is_turn =False
-                        self.player2.is_turn = True
+                if not is_piece_clicked:
+                    event = self.window.getch()
+                    (bx,by) = self.inputs(event)
+                    for piece in self.player1.pieces:
+                        if (bx,by) == (piece.position[0],piece.position[1]):
+                            possible_moves = piece.possible_moves(self.board) 
+                            highlight = possible_moves+[[bx,by]]
+                            self.board_out(highlight)
+                            self.window.refresh()
+                            is_piece_clicked = True
+                            piece_clicked = piece
+                if is_piece_clicked:
+                    possible_moves = piece_clicked.possible_moves(self.board) 
+                    event2 = self.window.getch()
+                    (x,y) = self.inputs(event)
+                    if [x,y] in possible_moves:
+                        if (x,y) != (-1,-1):
+                            for (i,piece2) in enumerate(self.player2.pieces):
+                                if [piece2.position[0],piece2.position[1]] == [int(x),int(y)]:
+                                    self.player1.pieces.pop(i)
+                                    break
+                            self.move_piece(piece_clicked,(x,y))
+                            self.board_out()
+                            self.window.refresh()
+                            is_piece_clicked = False
+                        else:
+                            self.board_out()
+                            self.window.refresh()
+                            is_piece_clicked = False
+                            continue
+                    #changes turn 
+                    piece_clicked = 0
+                    is_piece_clicked = False
+                    self.player1.is_turn =False
+                    self.player2.is_turn = True
 
             elif self.player2.is_turn:
                 deep.setposition(self.moves)
@@ -97,15 +114,20 @@ class Game:
                 yi = str(8-int(move[1]))
                 xf = str([i for (i,l) in enumerate(letters) if l == move[2]])[1]
                 yf = str(8-int(move[3]))
-                with open("output.txt","a") as f:
-                    f.write(f"{move,self.moves}")
-                f.close()
+                count = 0
 
                 for piece in self.player2.pieces:
                     if [piece.position[0],piece.position[1]] == [int(xi),int(yi)]:
+                        for (i,piece2) in enumerate(self.player1.pieces):
+                            if [piece2.position[0],piece2.position[1]] == [int(xf),int(yf)]:
+                                self.player1.pieces.pop(i)
+                                break
+
                         self.move_piece(piece,[int(xf),int(yf)])
                         self.board_out()
                         self.window.refresh()
+                    else:
+                        count +=1
                 self.player1.is_turn =True
                 self.player2.is_turn =False 
 
